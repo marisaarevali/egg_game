@@ -11,7 +11,7 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -53,6 +53,8 @@ var deltaKiirus;
 m2ngK2ib = false;
 //takistuste list
 takistusedList = ['takistus1', 'takistus2', 'takistus3', 'takistus4', 'takistus5'];
+// nähtamatu takistus
+var n2htamatuTakistus;
 // Takistuse pildi muutuja
 var takistus;
 // Takistuste tekke aeg
@@ -92,6 +94,8 @@ function create() {
         .setOrigin(0, 1)
         // Lisame mänguväljale piirid peale, et tegelane ei saaks minna mängust välja
         .setCollideWorldBounds(true)
+        //teeme ta keha pisemaks, et kokkupõrge oleks täpsem
+        .setSize(40,95)
         // Määrame tegelasele gravitatsiooni Y teljel, kukub 5000 px sekundis
         .setGravityY(5000)
 
@@ -102,7 +106,7 @@ function create() {
         frameRate: 9,
         repeat: -1
     });
-    //takistuste grupi loome kohe ära, et ei oleks errorit
+    //takistuste grupp, kuhu sisse hiljem loome takistused
     takistused = this.add.group();
     //skoor tekst
     skooriKiri = this.add.text(width - 300, 50, 'Skoor: 0', { fill: '#000', font: '700 24px Arial' });
@@ -250,13 +254,49 @@ function update(time, delta) {
     //ja nulli ära sünniaeg
     if (synniAeg >= 1500) {
         //loome random numbri 0 - 4
-        var takistuseNumber = Math.floor(Math.random() * 5);
+        //takistuseNumber = 2;
+        takistuseNumber = Math.floor(Math.random() * 5);
         // vahemaa mille vahel takistusi loome
-        var vahemaa = Phaser.Math.Between(600, 1200);
+        vahemaa = Phaser.Math.Between(600, 1200);
         //takistuseFunk();
         // loome takistused teele
-        takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0, 1);
+        // setOrigin sätib kasti tema keskele (0.5,1) y-täitsa all x-keset spraiti
+       // takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1).setSize(60,120); //.setOrigin(0, 1) .setSize(60,120,0,0)
+        
+        //n2htamatuTakistus = this.physics.add.sprite(width + vahemaa + 90, height).setImmovable().setOrigin(0, 1).setSize(120,60,0,0); //.setOffset(20)
+        if (takistuseNumber == 0) { //korras
+            console.log('jee 000');
+            takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1).setSize(50,100);
+            }
+        if (takistuseNumber == 1) { //korraz
+            console.log('jee 1');
+            takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1).setSize(70,120); //.setOrigin(0, 1) .setSize(60,120,0,0)
+            n2htamatuTakistus = this.physics.add.sprite(width + vahemaa, height).setImmovable().setOrigin(0.5, 1).setSize(130,120); //.setOffset(20)
+            takistused.add(n2htamatuTakistus);
+
+        }
+        if (takistuseNumber == 2) {
+            console.log('jee 2');
+            takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1).setSize(60,130,0,0); //.setOrigin(0, 1) .setSize(60,120,0,0)
+            n2htamatuTakistus = this.physics.add.sprite(width + vahemaa, height - 20).setImmovable().setOrigin(0.5,1).setSize(120,80); //.setOffset(20)
+            takistused.add(n2htamatuTakistus);
+
+        }
+        if (takistuseNumber == 3) { //korras
+            console.log('jee 3');
+            takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1); //.setOrigin(0, 1) .setSize(60,120,0,0)
+        }
+        
+        if (takistuseNumber == 4) { // korras
+            console.log('jee 4');
+            takistus = this.physics.add.sprite(width + vahemaa, height, takistusedList[takistuseNumber]).setImmovable().setOrigin(0.5,1).setSize(40,110); //.setOrigin(0, 1) .setSize(60,120,0,0)
+            n2htamatuTakistus = this.physics.add.sprite(width + vahemaa, height).setImmovable().setOrigin(0.5, 1).setSize(120,65); //.setOffset(20)
+            takistused.add(n2htamatuTakistus);
+
+        }
+        
         takistused.add(takistus);
+        
         console.log(takistuseNumber);
         synniAeg = 0;
     }
