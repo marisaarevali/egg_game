@@ -27,16 +27,24 @@ function preload() {
     this.load.image('m2ngl2bi', 'assets/manglabi.png');
 
     this.load.spritesheet('munaseisab', 'assets/munaseisab.png', { frameWidth: 53, frameHeight: 95 })
-    this.load.spritesheet('munajookseb', 'assets/munajookseb3.png', { frameWidth: 90, frameHeight: 95 })
+    this.load.spritesheet('munajookseb', 'assets/munajookseb.png', { frameWidth: 90, frameHeight: 95 })
     this.load.spritesheet('munakatki', 'assets/munakatki.png', { frameWidth: 53, frameHeight: 95 })
 
-    this.load.image('maapind', 'assets/maapind4.png');
+    this.load.image('maapind', 'assets/maapind.png');
+    this.load.image('m2ed', 'assets/m2ed.png');
+    this.load.image('taevas', 'assets/taevas.png');
+
 
     this.load.image('takistus1', 'assets/takistus1.png')
     this.load.image('takistus2', 'assets/takistus2.png')
     this.load.image('takistus3', 'assets/takistus3.png')
     this.load.image('takistus4', 'assets/takistus4.png')
     this.load.image('takistus5', 'assets/takistus5.png')
+
+    this.load.audio('hyppaheli','assets/audio/hyppa.ogg');
+    this.load.audio('skoorheli','assets/audio/skoor.ogg');
+    this.load.audio('kokkup6rge','assets/audio/kokkup6rge.ogg');
+
 }
 
 const { height, width } = this.game.config;
@@ -59,6 +67,8 @@ var n2htamatuTakistus;
 var takistus;
 // Takistuste tekke aeg
 var synniAeg = 0;
+// skoori ületuse kontroll heli jaoks
+var skoorYletatud = false;
 
 
 
@@ -81,12 +91,21 @@ kasKaotasid = false;
 function create() {
     const { height, width } = this.game.config;
 
+    taevas = this.add.tileSprite(0, height, width, 500, 'taevas').setOrigin(0, 1);
+    m2ed = this.add.tileSprite(0, height-20, width, 200, 'm2ed').setOrigin(0, 1);
     // Maapind on tilesprite mis automaatselt pikendab ennasy
     // this.add.tileSprite(x-telje asukoht,y-telje asukoht,laius,kõrgus,spraidi nimetus)
     maapind = this.add.tileSprite(0, height, width, 20, 'maapind').setOrigin(0, 1);
 
+    
+
     // Kiirus, millega mäng algab
     m2nguKiirus = 10;
+
+    //heli
+    hyppaHeli = this.sound.add('hyppaheli');
+    skoorHeli = this.sound.add('skoorheli');
+    kokkuP6rgeHeli = this.sound.add('kokkup6rge');
 
 
     // (x-telje asukoht,y-telje asukoht,kõrgus,spraidi nimetus)
@@ -98,6 +117,8 @@ function create() {
         .setSize(40,95)
         // Määrame tegelasele gravitatsiooni Y teljel, kukub 5000 px sekundis
         .setGravityY(5000)
+        // toome tegelase ettepoole, et ta ei oleks takistuste taga
+        .setDepth(3);
 
     // Jooksmise animatsioon
     this.anims.create({
@@ -127,12 +148,18 @@ function create() {
     klaviatuur = this.input.keyboard.createCursorKeys();
 
     // kui tegelane jookseb takistuse pihta siis käivita see funktsioon
-    this.physics.add.collider(tegelane, takistused, function kokku() {
+    kokkuP6rge = this.physics.add.collider(tegelane, takistused,  
+        
+        function kokku() {  
         //peata mäng
         m2ngK2ib = false;
         //kas kaotasid?
         kasKaotasid = true;
-        //muuda tegelase tekstuuri
+        // mängi heli
+        kokkuP6rgeHeli.play();
+        //peata jooksmise animatsioon
+        tegelane.anims.stop();
+        //muuda tegelase tekstuur
         tegelane.setTexture('munakatki');
         //resetime mängukiiruse
         m2nguKiirus = 10;
@@ -145,7 +172,11 @@ function create() {
             maksSkoorKiri.setText('Kõrgeim skoor: ' + maksSkoor).setAlpha(1);
         }
         localStorage.setItem('skoor', maksSkoor);
-    });
+        //et kokkupõrge lõppeks peale esimest kokkupuudet
+    }, function eemaldaKokkup6rge()
+    {
+        kokkuP6rge.active = false;
+    }, this);
 
     // Skoori arvutamise ja mängukiiruse suurendamine
     this.time.addEvent({
@@ -161,6 +192,12 @@ function create() {
             // Lisame mängukiirusele 0.01
             m2nguKiirus += 0.01;
             skooriKiri.setText('Skoor: ' + skoor);
+            //Mängi heli iga kord kui skoor jaguneb 100'ga
+            if (skoor % 100 == 0) {
+                skoorHeli.play();
+                //skoorYletatud = true;
+
+            }
         }
     })
 
@@ -177,6 +214,10 @@ function create() {
         // taastame alge mängukiiruse
         m2nguKiirus = 10;
         skoor = 0;
+        // kõrgeim skoor ei ole ületatud
+        skoorYletatud = false;
+        //et kokkupõrge jälle töötaks
+        kokkuP6rge.active = true;
 
     })
     //hiireklikk
@@ -190,11 +231,16 @@ function update(time, delta) {
 
 
 
+    
+
+
+
     // kui space vajutad, siis tee seda
     if (klaviatuur.space.isDown && m2ngK2ib == false && kasKaotasid == false || hiireKlikk.isDown && m2ngK2ib == false && kasKaotasid == false) {
         //kui tegelane ei ole vastu maad siis ära hüppa
         if (!tegelane.body.onFloor()) { return; }
         tegelane.setVelocityY(-1800);
+        hyppaHeli.play();
         console.log(maapind);
         console.log('jeee');
         //järgmise funktsiooni paned ainult siis tööle
@@ -225,12 +271,18 @@ function update(time, delta) {
         })
     }
 
+
+
     if (m2ngK2ib == false) { return; }
 
     // Ühtlase liikumise loomiseks korrutame mängukiiruse deltaga läbi
     deltaKiirus = m2nguKiirus * delta * 0.06;
     //maapinna liikumine
     maapind.tilePositionX += deltaKiirus;
+    //mägede liikumine
+    m2ed.tilePositionX += deltaKiirus * 0.5;
+    //
+    taevas.tilePositionX += deltaKiirus * 0.25;
     //suurendame takistuste asukohta mängu jooksul
     Phaser.Actions.IncX(takistused.getChildren(), -deltaKiirus);
 
@@ -238,6 +290,7 @@ function update(time, delta) {
     // Kui vajutad tühikut ja tegelane on maas või kui teed hiirekliki ja tegelane on maas
     if (klaviatuur.space.isDown && tegelane.body.onFloor() || hiireKlikk.isDown && tegelane.body.onFloor()) {
         tegelane.setVelocityY(-1800);
+        hyppaHeli.play();
     }
     //kui tegelase y väärtus on suurem kui 0, peata liikumise animatsioon ja pane ta paigale (sest ta on õhus)
     if (tegelane.body.deltaAbsY() > 0) {
@@ -245,6 +298,7 @@ function update(time, delta) {
         tegelane.setTexture('munaseisab')
     } else {
         tegelane.play('jooksmine', true);
+        
     };
 
     //paneme takistuste sünniaja jooksma
@@ -299,7 +353,16 @@ function update(time, delta) {
         
         console.log(takistuseNumber);
         synniAeg = 0;
+
+
+
+
     }
-
-
+    // kui takistused listi elemendid liiguvad mänguväljalt x teljel välja
+    // kustuta need
+    takistused.getChildren().forEach(listiElemendid => {
+        if (listiElemendid.getBounds().right < 0) {
+            listiElemendid.destroy();
+        }
+      } )
 }
