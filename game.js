@@ -225,20 +225,13 @@ function create() {
 
 }
 
-
-
 function update(time, delta) {
 
 
-
-    
-
-
-
     // kui space vajutad, siis tee seda
-    if (klaviatuur.space.isDown && m2ngK2ib == false && kasKaotasid == false || hiireKlikk.isDown && m2ngK2ib == false && kasKaotasid == false) {
+    if (klaviatuur.space.isDown && m2ngK2ib == false && kasKaotasid == false && tegelane.body.onFloor() == true || hiireKlikk.isDown && m2ngK2ib == false && kasKaotasid == false && tegelane.body.onFloor() == true) {
         //kui tegelane ei ole vastu maad siis ära hüppa
-        if (!tegelane.body.onFloor()) { return; }
+        //if (!tegelane.body.onFloor()) { return; }
         tegelane.setVelocityY(-1800);
         hyppaHeli.play();
         console.log(maapind);
@@ -255,8 +248,6 @@ function update(time, delta) {
             //arrow funktsioon vaja seletada
             callback: () => {
                 tegelane.setVelocityX(250);
-
-
                 if (tegelane.x > 100) {
                     //see paneb update funktsiooni sisu lõpuks käima
                     m2ngK2ib = true;
