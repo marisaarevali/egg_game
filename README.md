@@ -4,7 +4,7 @@ valmis mängu link - marile.ee/phaser3
 
 koodikirjutamise näide:
 
-[juhend.pdf](https://github.com/marisaarevali/loputoo_mang_phaser3/files/6412392/juhend.pdf)
+[mänguarendamise_n2ide.pdf](https://github.com/marisaarevali/loputoo_mang_phaser3/files/6413032/manguarendamise_n2ide.pdf)
 
 Kood on vabalt kasutamiseks kõigile!
 
