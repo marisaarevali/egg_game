@@ -1,10 +1,6 @@
-# loputoo_mang_phaser3
+# game written with phaser3 webframe
 
-valmis mängu link - marile.ee/phaser3
+try it out - http://emari.ee/phaser3/
 
-koodikirjutamise näide:
 
-[mänguarendamise_n2ide.pdf](https://github.com/marisaarevali/loputoo_mang_phaser3/files/6413032/manguarendamise_n2ide.pdf)
-
-Kood on vabalt kasutamiseks kõigile!
 
